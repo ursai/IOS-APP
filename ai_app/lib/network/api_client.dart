@@ -1,0 +1,208 @@
+import 'dart:convert';
+
+import 'package:app/contants/business_constants.dart';
+import 'package:app/contants/router_name.dart';
+import 'package:app/controller/mine_controller.dart';
+import 'package:app/models/base_model.dart';
+import 'package:app/network/network_config.dart';
+import 'package:app/utils/store_util.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_smart_retry/dio_smart_retry.dart';
+import 'package:flustars/flustars.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart' as getx;
+import 'package:path_provider/path_provider.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+
+class ApiClient {
+  late Dio _dio;
+
+  Map<String, dynamic> errorCodeMap = {};
+
+  static final ApiClient _apiClient = ApiClient._internal();
+
+  factory ApiClient() {
+    return _apiClient;
+  }
+
+  ApiClient._internal() {
+    var options = BaseOptions(
+        baseUrl: NetworkConfig.baseUrl,
+        receiveTimeout: NetworkConfig.receiveTimeOut,
+        connectTimeout: NetworkConfig.connectTimeOut,
+        sendTimeout: NetworkConfig.sendTimeOut,
+        responseType: ResponseType.json);
+    _dio = Dio(options);
+    _dio.interceptors.add(PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseBody: true,
+      responseHeader: false,
+      error: true,
+    ));
+    _dio.interceptors.add(RetryInterceptor(
+        dio: _dio,
+        retries: 3,
+        retryDelays: const [
+          Duration(seconds: 5),
+          Duration(seconds: 10),
+          Duration(seconds: 15)
+        ]));
+  }
+
+  void get(String path,
+      {bool isShowLoading = true,
+      Map<String, dynamic>? queryParameters,
+      Function? errorCallback,
+      Function? successCallback}) async {
+    Response response;
+    try {
+      if (isShowLoading) EasyLoading.show();
+      Options options = Options(headers: NetworkConfig.headers);
+      response = await _dio.get(path,
+          queryParameters: queryParameters, options: options);
+      if (isShowLoading) EasyLoading.dismiss();
+      _handleResponse(response,
+          successCallback: successCallback, errorCallback: errorCallback);
+    } on DioError catch (e) {
+      _handleError(e, errorCallback: errorCallback);
+    }
+  }
+
+  void post(String path,
+      {bool isShowLoading = true,
+      Object? data,
+      Function? errorCallback,
+      Function? successCallback}) async {
+    Response response;
+    try {
+      if (isShowLoading) EasyLoading.show();
+      Options options = Options(headers: NetworkConfig.headers);
+      response = await _dio.post(path, data: data, options: options);
+      if (isShowLoading) EasyLoading.dismiss();
+      _handleResponse(response,
+          successCallback: successCallback, errorCallback: errorCallback);
+    } on DioError catch (e) {
+      _handleError(e, errorCallback: errorCallback);
+    }
+  }
+
+  void delete(String path,
+      {bool isShowLoading = true,
+      Map<String, dynamic>? queryParameters,
+      Function? errorCallback,
+      Function? successCallback}) async {
+    Response response;
+    try {
+      if (isShowLoading) EasyLoading.show();
+      Options options = Options(headers: NetworkConfig.headers);
+      response = await _dio.delete(path,
+          queryParameters: queryParameters, options: options);
+      if (isShowLoading) EasyLoading.dismiss();
+      _handleResponse(response,
+          successCallback: successCallback, errorCallback: errorCallback);
+    } on DioError catch (e) {
+      _handleError(e, errorCallback: errorCallback);
+    }
+  }
+
+  void put(String path,
+      {bool isShowLoading = true,
+      Object? data,
+      Function? errorCallback,
+      Function? successCallback}) async {
+    Response response;
+    try {
+      if (isShowLoading) EasyLoading.show();
+      Options options = Options(headers: NetworkConfig.headers);
+      response = await _dio.put(path, data: data, options: options);
+      if (isShowLoading) EasyLoading.dismiss();
+      _handleResponse(response,
+          successCallback: successCallback, errorCallback: errorCallback);
+    } on DioError catch (e) {
+      _handleError(e, errorCallback: errorCallback);
+    }
+  }
+
+  void _handleResponse(Response response,
+      {Function? errorCallback, Function? successCallback}) {
+    if (response.statusCode == NetworkConfig.successCode) {
+      BaseModel baseModel = BaseModel.fromJson(response.data);
+      if (baseModel.code == NetworkConfig.businessSuccessCode) {
+        if (successCallback != null) {
+          if (baseModel.data is List) {
+            Map<String, dynamic> map = {'data': baseModel.data};
+            successCallback(map);
+          } else {
+            successCallback(baseModel.data);
+          }
+        }
+      } else {
+        if (errorCallback != null) {
+          errorCallback(baseModel.msg);
+        } else {
+          EasyLoading.showToast(baseModel.msg ?? '');
+        }
+      }
+    }
+  }
+
+  // 下载文件
+  void download(String urlPath) async {
+    final dir = await getApplicationSupportDirectory();
+    String savePath = '${dir.path}/${BusinessConstants.errorCodeFilePath}';
+    debugPrint('savePath=$savePath');
+    _dio.download(urlPath, savePath, onReceiveProgress: ((count, total) async {
+      if (count >= total) {
+        // 下载完成
+        String jsonStr = await StoreUtil.readFromFile(savePath);
+        errorCodeMap = json.decode(jsonStr);
+      }
+    }));
+  }
+
+  /*
+   * error统一处理
+   */
+  void _handleError(DioError e, {Function? errorCallback}) {
+    EasyLoading.dismiss();
+    if (e.type == DioErrorType.connectionTimeout) {
+      EasyLoading.showToast("连接超时");
+    } else if (e.type == DioErrorType.sendTimeout) {
+      EasyLoading.showToast("请求超时");
+    } else if (e.type == DioErrorType.receiveTimeout) {
+      EasyLoading.showToast("响应超时");
+    } else if (e.type == DioErrorType.badResponse) {
+      if (e.response?.data != null) {
+        BaseModel model = BaseModel.fromJson(e.response?.data);
+        // 登陆出错
+        if (model.code == BusinessCode.forbidden ||
+            model.code == BusinessCode.invalidToken ||
+            model.code == BusinessCode.tokenExpired ||
+            model.code == BusinessCode.invalidAccount ||
+            model.code == BusinessCode.tokenVerifyFailed) {
+          SpUtil.remove(BusinessConstants.tokenKey);
+          NetworkConfig.headers['authorization'] = '';
+          getx.Get.toNamed(RouterName.loginRoute);
+          MineController mineController = getx.Get.find();
+          mineController.isLogout = true;
+        }
+        EasyLoading.showToast(errorCodeMap['${model.code}'] ?? model.msg);
+
+        if (errorCallback != null) {
+          errorCallback(model);
+        }
+      } else {
+        EasyLoading.showToast("出现异常");
+      }
+    } else {
+      if (e.response?.data != null) {
+        BaseModel model = BaseModel.fromJson(e.response?.data);
+        EasyLoading.showToast("未知错误, 错误码：${model.code}, 错误信息：${model.msg}");
+      } else {
+        EasyLoading.showToast("未知错误");
+      }
+    }
+  }
+}
