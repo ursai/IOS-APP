@@ -1,18 +1,8 @@
-import 'dart:convert';
-
-import 'package:app/contants/business_constants.dart';
-import 'package:app/contants/router_name.dart';
-import 'package:app/controller/mine_controller.dart';
 import 'package:app/models/base_model.dart';
 import 'package:app/network/network_config.dart';
-import 'package:app/utils/store_util.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
-import 'package:flustars/flustars.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart' as getx;
-import 'package:path_provider/path_provider.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class ApiClient {
@@ -148,20 +138,6 @@ class ApiClient {
     }
   }
 
-  // 下载文件
-  void download(String urlPath) async {
-    final dir = await getApplicationSupportDirectory();
-    String savePath = '${dir.path}/${BusinessConstants.errorCodeFilePath}';
-    debugPrint('savePath=$savePath');
-    _dio.download(urlPath, savePath, onReceiveProgress: ((count, total) async {
-      if (count >= total) {
-        // 下载完成
-        String jsonStr = await StoreUtil.readFromFile(savePath);
-        errorCodeMap = json.decode(jsonStr);
-      }
-    }));
-  }
-
   /*
    * error统一处理
    */
@@ -181,13 +157,7 @@ class ApiClient {
             model.code == BusinessCode.invalidToken ||
             model.code == BusinessCode.tokenExpired ||
             model.code == BusinessCode.invalidAccount ||
-            model.code == BusinessCode.tokenVerifyFailed) {
-          SpUtil.remove(BusinessConstants.tokenKey);
-          NetworkConfig.headers['authorization'] = '';
-          getx.Get.toNamed(RouterName.loginRoute);
-          MineController mineController = getx.Get.find();
-          mineController.isLogout = true;
-        }
+            model.code == BusinessCode.tokenVerifyFailed) {}
         EasyLoading.showToast(errorCodeMap['${model.code}'] ?? model.msg);
 
         if (errorCallback != null) {

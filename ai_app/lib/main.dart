@@ -15,7 +15,7 @@ void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  runApp(FMApp());
+  runApp(AIApp());
 
   if (Platform.isAndroid) {
     SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(
@@ -27,8 +27,8 @@ void main() {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 
-class FMApp extends StatelessWidget {
-  FMApp({super.key});
+class AIApp extends StatelessWidget {
+  AIApp({super.key});
 
   final easyload = EasyLoading.init();
 
