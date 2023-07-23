@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "72566415848",
+    "project_id": "aiapp-9f9d4",
+    "storage_bucket": "aiapp-9f9d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72566415848:android:dda2564c7c33c8389bc45d",
+        "android_client_info": {
+          "package_name": "com.urs.aiApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72566415848-qboagvb2gubtvge0hu30lv0ds25sac9k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.urs.aiApp",
+            "certificate_hash": "655c51be65aaa52952c01cf3c60d5ec5cbaaf7dd"
+          }
+        },
+        {
+          "client_id": "72566415848-dsj9nme69djqe0hs36nnq4u1cfsb9vav.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCy9F-DpZWm6B2RJAPJdAczLtcftwrsUYE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72566415848-dsj9nme69djqe0hs36nnq4u1cfsb9vav.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

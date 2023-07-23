@@ -1,3 +1,4 @@
+import 'package:app/controller/nav_controller.dart';
 import 'package:app/pages/chat/chat_page.dart';
 import 'package:app/pages/discovery/discovery_page.dart';
 import 'package:app/pages/mine/mine_page.dart';
@@ -6,6 +7,7 @@ import 'package:app/utils/common_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class NavBarPage extends StatefulWidget {
   const NavBarPage({super.key});
@@ -56,8 +58,10 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
   final List<Widget> tabPages = [
     const DiscoveryPage(),
     const ChatPage(),
-    const MinePage(),
+    MinePage(),
   ];
+
+  late NavController _navController;
 
   @override
   void didChangeDependencies() {
@@ -74,6 +78,9 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
   @override
   void initState() {
     super.initState();
+
+    Get.put(NavController());
+    _navController = Get.find();
   }
 
   @override
@@ -81,15 +88,19 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
     FlutterNativeSplash.remove();
 
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: bottomTabs,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        unselectedItemColor: CommonUtil.hexColor(0xEEEDE9),
-        selectedItemColor: CommonUtil.hexColor(0xE5FF73),
-        onTap: (index) {},
-      ),
+      bottomNavigationBar: Obx(() => BottomNavigationBar(
+            items: bottomTabs,
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _navController.tabIndex.value,
+            unselectedItemColor: CommonUtil.hexColor(0xEEEDE9),
+            selectedItemColor: CommonUtil.hexColor(0xE5FF73),
+            onTap: (index) {
+              _navController.tabIndex.value = index;
+              _navController.pageController.jumpToPage(index);
+            },
+          )),
       body: PageView(
+        controller: _navController.pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: tabPages,
         onPageChanged: (value) {},

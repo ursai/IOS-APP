@@ -36,6 +36,9 @@ dependencies:
   flutter_launcher_icons: "^0.13.1"
   url_launcher: ^6.1.11
   decimal: ^2.3.3
+  google_sign_in: ^6.1.4
+  firebase_auth: ^4.7.1
+  firebase_core: ^2.15.0
 
 dev_dependencies:
   flutter_test:
