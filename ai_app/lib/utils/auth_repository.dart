@@ -2,7 +2,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class AuthRepositoryImpl {
-  Future<bool> signInWithGoogle();
+  Future<String?> signInWithGoogle();
   Future<void> signOut();
 }
 
@@ -15,10 +15,10 @@ class GoogleAuthRepository implements AuthRepositoryImpl {
         _googleSignIn = GoogleSignIn();
 
   @override
-  Future<bool> signInWithGoogle() async {
+  Future<String?> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     if (googleUser == null) {
-      return false;
+      return null;
     }
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
@@ -26,9 +26,10 @@ class GoogleAuthRepository implements AuthRepositoryImpl {
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
-    await _firebaseAuth.signInWithCredential(credential);
+    UserCredential userCredential =
+        await _firebaseAuth.signInWithCredential(credential);
 
-    return true;
+    return userCredential.user?.email;
   }
 
   @override
@@ -52,7 +53,6 @@ class AppleAuthRepository {
     final User? user =
         (await FirebaseAuth.instance.signInWithProvider(appleProvider)).user;
 
-    IdTokenResult? idTokenResult = await user?.getIdTokenResult(true);
-    return idTokenResult?.token;
+    return user?.email;
   }
 }

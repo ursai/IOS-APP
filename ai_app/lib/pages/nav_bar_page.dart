@@ -85,8 +85,6 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
 
   @override
   Widget build(Object context) {
-    FlutterNativeSplash.remove();
-
     return Scaffold(
       bottomNavigationBar: Obx(() => BottomNavigationBar(
             items: bottomTabs,

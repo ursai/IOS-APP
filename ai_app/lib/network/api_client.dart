@@ -55,7 +55,7 @@ class ApiClient {
       if (isShowLoading) EasyLoading.dismiss();
       _handleResponse(response,
           successCallback: successCallback, errorCallback: errorCallback);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       _handleError(e, errorCallback: errorCallback);
     }
   }
@@ -73,7 +73,7 @@ class ApiClient {
       if (isShowLoading) EasyLoading.dismiss();
       _handleResponse(response,
           successCallback: successCallback, errorCallback: errorCallback);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       _handleError(e, errorCallback: errorCallback);
     }
   }
@@ -92,7 +92,7 @@ class ApiClient {
       if (isShowLoading) EasyLoading.dismiss();
       _handleResponse(response,
           successCallback: successCallback, errorCallback: errorCallback);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       _handleError(e, errorCallback: errorCallback);
     }
   }
@@ -110,7 +110,7 @@ class ApiClient {
       if (isShowLoading) EasyLoading.dismiss();
       _handleResponse(response,
           successCallback: successCallback, errorCallback: errorCallback);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       _handleError(e, errorCallback: errorCallback);
     }
   }
@@ -130,9 +130,9 @@ class ApiClient {
         }
       } else {
         if (errorCallback != null) {
-          errorCallback(baseModel.msg);
+          errorCallback(baseModel.message);
         } else {
-          EasyLoading.showToast(baseModel.msg ?? '');
+          EasyLoading.showToast(baseModel.message ?? '');
         }
       }
     }
@@ -141,15 +141,15 @@ class ApiClient {
   /*
    * error统一处理
    */
-  void _handleError(DioError e, {Function? errorCallback}) {
+  void _handleError(DioException e, {Function? errorCallback}) {
     EasyLoading.dismiss();
-    if (e.type == DioErrorType.connectionTimeout) {
+    if (e.type == DioExceptionType.connectionTimeout) {
       EasyLoading.showToast("连接超时");
-    } else if (e.type == DioErrorType.sendTimeout) {
+    } else if (e.type == DioExceptionType.sendTimeout) {
       EasyLoading.showToast("请求超时");
-    } else if (e.type == DioErrorType.receiveTimeout) {
+    } else if (e.type == DioExceptionType.receiveTimeout) {
       EasyLoading.showToast("响应超时");
-    } else if (e.type == DioErrorType.badResponse) {
+    } else if (e.type == DioExceptionType.badResponse) {
       if (e.response?.data != null) {
         BaseModel model = BaseModel.fromJson(e.response?.data);
         // 登陆出错
@@ -158,7 +158,7 @@ class ApiClient {
             model.code == BusinessCode.tokenExpired ||
             model.code == BusinessCode.invalidAccount ||
             model.code == BusinessCode.tokenVerifyFailed) {}
-        EasyLoading.showToast(errorCodeMap['${model.code}'] ?? model.msg);
+        EasyLoading.showToast(errorCodeMap['${model.code}'] ?? model.message);
 
         if (errorCallback != null) {
           errorCallback(model);
@@ -169,7 +169,7 @@ class ApiClient {
     } else {
       if (e.response?.data != null) {
         BaseModel model = BaseModel.fromJson(e.response?.data);
-        EasyLoading.showToast("未知错误, 错误码：${model.code}, 错误信息：${model.msg}");
+        EasyLoading.showToast("未知错误, 错误码：${model.code}, 错误信息：${model.message}");
       } else {
         EasyLoading.showToast("未知错误");
       }

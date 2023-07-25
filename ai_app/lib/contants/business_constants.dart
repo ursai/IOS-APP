@@ -1,3 +1,4 @@
 class BusinessConstants {
-  static const tokenKey = 'fewMilesTokenKey';
+  static const tokenKey = 'usrTokenKey';
+  static const imgPathPrefix = 'assets/images';
 }

@@ -1,10 +1,14 @@
 import 'dart:io';
 
+import 'package:app/contants/business_constants.dart';
 import 'package:app/contants/messages.dart';
 import 'package:app/contants/router_name.dart';
+import 'package:app/network/network_config.dart';
 import 'package:app/utils/app_route_observer.dart';
 import 'package:app/utils/keyboard_util.dart';
+import 'package:app/utils/store_util.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -37,11 +41,13 @@ class AIApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _initSpUtil();
+
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
     return ScreenUtilInit(
-        designSize: const Size(375, 812),
+        designSize: const Size(390, 844),
         splitScreenMode: true,
         builder: (_, child) {
           return GetMaterialApp(
@@ -62,8 +68,17 @@ class AIApp extends StatelessWidget {
             navigatorObservers: [AppRouteObserver().routeObserver],
             defaultTransition: Transition.cupertino,
             getPages: RouterName.routerNames,
-            initialRoute: '/',
+            initialRoute: StoreUtil.isLogin() ? '/' : RouterName.loginRouter,
           );
         });
+  }
+
+  Future<void> _initSpUtil() async {
+    FlutterNativeSplash.remove();
+
+    await SpUtil.getInstance();
+    // 获取Token放入Headers
+    NetworkConfig.headers['authorization'] =
+        SpUtil.getString(BusinessConstants.tokenKey);
   }
 }

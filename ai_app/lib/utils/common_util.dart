@@ -1,6 +1,13 @@
+import 'package:app/contants/business_constants.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 
 class CommonUtil {
+  static bool isLogin() {
+    return !ObjectUtil.isEmptyString(
+        SpUtil.getString(BusinessConstants.tokenKey));
+  }
+
   /// 十六进制颜色，
   /// hex, 十六进制值，例如：0xffffff,
   /// alpha, 透明度 [0.0,1.0]
