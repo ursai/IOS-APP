@@ -4,12 +4,14 @@ class LoginRequestModel {
   String? email;
   String? googleId;
   String? password;
+  String? loginKey;
 
   LoginRequestModel(
       {this.accountTypeEnum,
       this.appleId,
       this.email,
       this.googleId,
+      this.loginKey,
       this.password});
 
   LoginRequestModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,9 @@ class LoginRequestModel {
     }
     if (json["appleId"] is String) {
       appleId = json["appleId"];
+    }
+    if (json["loginKey"] is String) {
+      loginKey = json["loginKey"];
     }
     if (json["email"] is String) {
       email = json["email"];
@@ -36,6 +41,7 @@ class LoginRequestModel {
     _data["appleId"] = appleId;
     _data["email"] = email;
     _data["googleId"] = googleId;
+    _data["loginKey"] = loginKey;
     _data["password"] = password;
     return _data;
   }

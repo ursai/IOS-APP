@@ -2,6 +2,7 @@ import 'package:app/models/base_model.dart';
 import 'package:app/network/network_config.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -153,13 +154,6 @@ class ApiClient {
       if (e.response?.data != null) {
         BaseModel model = BaseModel.fromJson(e.response?.data);
         // 登陆出错
-        if (model.code == BusinessCode.forbidden ||
-            model.code == BusinessCode.invalidToken ||
-            model.code == BusinessCode.tokenExpired ||
-            model.code == BusinessCode.invalidAccount ||
-            model.code == BusinessCode.tokenVerifyFailed) {}
-        EasyLoading.showToast(errorCodeMap['${model.code}'] ?? model.message);
-
         if (errorCallback != null) {
           errorCallback(model);
         }

@@ -1,5 +1,9 @@
 import 'package:app/contants/business_constants.dart';
+import 'package:app/contants/router_name.dart';
+import 'package:app/controller/chat_controller.dart';
+import 'package:app/controller/discovery_controller.dart';
 import 'package:app/controller/login_controller.dart';
+import 'package:app/controller/mine_controller.dart';
 import 'package:app/models/login_request_model.dart';
 import 'package:app/utils/common_util.dart';
 import 'package:app/widgets/common/common_btn.dart';
@@ -14,16 +18,20 @@ class LoginPage extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: CommonUtil.hexColor(0xA1A8B0),
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage(
+                  '${BusinessConstants.imgPathPrefix}/mine/login_bg.png'),
+              fit: BoxFit.fill)),
       padding: EdgeInsets.fromLTRB(
-          24.w, 126.w, 24.w, 48.w + ScreenUtil().bottomBarHeight),
+          24.w, 126.r, 24.w, 48.r + ScreenUtil().bottomBarHeight),
       child: Column(
         children: [
           Text(
             'Welcome to  the community',
             style: TextStyle(fontSize: 42.sp, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 290.w),
+          const Expanded(child: SizedBox.shrink()),
           CommonBtn(
               backgroundColor: Colors.white,
               child: Row(
@@ -44,10 +52,17 @@ class LoginPage extends GetView<LoginController> {
                   LoginRequestModel loginRequestModel = LoginRequestModel();
                   loginRequestModel.accountTypeEnum = 'APPLE';
                   loginRequestModel.appleId = email;
-                  controller.login(loginRequestModel);
+                  loginRequestModel.loginKey = CommonUtil.generateMd5(
+                      '${BusinessConstants.privateKey}$email');
+                  controller.login(loginRequestModel, successCallback: () {
+                    Get.put(DisCoveryController());
+                    Get.put(MineController());
+                    Get.put(ChatController());
+                    Get.toNamed('/');
+                  });
                 });
               }),
-          SizedBox(height: 12.w),
+          SizedBox(height: 12.r),
           CommonBtn(
               backgroundColor: Colors.white,
               child: Row(
@@ -64,20 +79,29 @@ class LoginPage extends GetView<LoginController> {
                 ],
               ),
               onPressed: () {
-                controller.googleAuth((token) {
+                controller.googleAuth((email) {
                   LoginRequestModel loginRequestModel = LoginRequestModel();
                   loginRequestModel.accountTypeEnum = 'GOOGLE';
-                  loginRequestModel.googleId = token;
-                  controller.login(loginRequestModel);
+                  loginRequestModel.googleId = email;
+                  loginRequestModel.loginKey = CommonUtil.generateMd5(
+                      '${BusinessConstants.privateKey}$email');
+                  controller.login(loginRequestModel, successCallback: () {
+                    Get.put(DisCoveryController());
+                    Get.put(MineController());
+                    Get.put(ChatController());
+                    Get.toNamed('/');
+                  });
                 });
               }),
-          SizedBox(height: 12.w),
+          SizedBox(height: 12.r),
           CommonBtn(
-              onPressed: () {},
+              onPressed: () {
+                Get.toNamed(RouterName.loginRegisterRouter);
+              },
               text: 'Continue with Account',
               textStyle: TextStyle(fontSize: 14.sp, color: Colors.black),
               backgroundColor: Colors.white),
-          SizedBox(height: 12.w),
+          SizedBox(height: 12.r),
           Text.rich(
             TextSpan(
               text: 'By sign up,  you’re agreeing to our ',

@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:72566415848:android:dda2564c7c33c8389bc45d",
+        "mobilesdk_app_id": "1:72566415848:android:5fc44d2169861f119bc45d",
         "android_client_info": {
-          "package_name": "com.urs.aiApp"
+          "package_name": "com.urs.ai.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "72566415848-qboagvb2gubtvge0hu30lv0ds25sac9k.apps.googleusercontent.com",
+          "client_id": "72566415848-lp4sb346f5ovl6v137fni3r988v2hgtn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.urs.aiApp",
-            "certificate_hash": "655c51be65aaa52952c01cf3c60d5ec5cbaaf7dd"
+            "package_name": "com.urs.ai.app",
+            "certificate_hash": "2a37fd74a367188bab42413b4ae31f5da2007824"
           }
         },
         {
@@ -37,6 +37,13 @@
             {
               "client_id": "72566415848-dsj9nme69djqe0hs36nnq4u1cfsb9vav.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "72566415848-i0ki2614hmtkpltk5cod4d9e3c63u5at.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.urs.ai.app"
+              }
             }
           ]
         }

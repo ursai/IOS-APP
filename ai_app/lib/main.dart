@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:app/contants/business_constants.dart';
 import 'package:app/contants/messages.dart';
 import 'package:app/contants/router_name.dart';
+import 'package:app/models/chat_model.dart';
 import 'package:app/network/network_config.dart';
 import 'package:app/utils/app_route_observer.dart';
+import 'package:app/utils/db_util.dart';
 import 'package:app/utils/keyboard_util.dart';
-import 'package:app/utils/store_util.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +16,14 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(ChatModelAdapter());
 
   await Firebase.initializeApp();
 
@@ -68,7 +73,7 @@ class AIApp extends StatelessWidget {
             navigatorObservers: [AppRouteObserver().routeObserver],
             defaultTransition: Transition.cupertino,
             getPages: RouterName.routerNames,
-            initialRoute: StoreUtil.isLogin() ? '/' : RouterName.loginRouter,
+            initialRoute: '/',
           );
         });
   }
@@ -77,6 +82,8 @@ class AIApp extends StatelessWidget {
     FlutterNativeSplash.remove();
 
     await SpUtil.getInstance();
+    // 初始化数据库
+    DbUtil.shared;
     // 获取Token放入Headers
     NetworkConfig.headers['authorization'] =
         SpUtil.getString(BusinessConstants.tokenKey);
