@@ -39,9 +39,8 @@ class LoginController extends GetxController {
     ApiClient().post(ApiPath.loginApi, data: loginRequestModel.toJson(),
         successCallback: (data) async {
       loginModel = LoginModel.fromJson(data);
-      // 保存accountId
-      await SpUtil.putInt(
-          BusinessConstants.accountIdKey, loginModel?.accountId ?? -1);
+      // 保存登录数据
+      await SpUtil.putObject(BusinessConstants.userInfoKey, loginModel!);
       // 保存token
       await SpUtil.putString(
           BusinessConstants.tokenKey, loginModel?.token ?? '');
@@ -58,6 +57,8 @@ class LoginController extends GetxController {
         .post(ApiPath.registerApi, data: {'email': username, 'password': pwd},
             successCallback: (data) async {
       loginModel = LoginModel.fromJson(data);
+      // 保存登录数据
+      await SpUtil.putObject(BusinessConstants.userInfoKey, loginModel!);
       // 保存token
       await SpUtil.putString(
           BusinessConstants.tokenKey, loginModel?.token ?? '');

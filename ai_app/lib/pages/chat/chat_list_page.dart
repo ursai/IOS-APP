@@ -2,6 +2,7 @@ import 'package:app/contants/business_constants.dart';
 import 'package:app/contants/router_name.dart';
 import 'package:app/controller/chat_controller.dart';
 import 'package:app/controller/discovery_controller.dart';
+import 'package:app/controller/nav_controller.dart';
 import 'package:app/models/chat_model.dart';
 import 'package:app/models/discovery_model.dart';
 import 'package:app/utils/common_util.dart';
@@ -47,9 +48,14 @@ class _ChatListPageState extends State<ChatListPage>
             ],
           ),
           SizedBox(height: 24.w),
-          Hive.box(BusinessConstants.chatMsgBox).values.isEmpty
-              ? _buildEmptyMsgWidget()
-              : Expanded(child: _buildMsgListWidget(context))
+          ValueListenableBuilder(
+              valueListenable:
+                  Hive.box(BusinessConstants.chatMsgBox).listenable(),
+              builder: (context, box, _) {
+                return box.values.isEmpty
+                    ? _buildEmptyMsgWidget()
+                    : Expanded(child: _buildMsgListWidget(context));
+              })
         ]));
   }
 
@@ -59,12 +65,18 @@ class _ChatListPageState extends State<ChatListPage>
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        AppImage.asset(
-            '${BusinessConstants.imgPathPrefix}/chat/empty_message.png',
-            width: 200.w,
-            height: 160.w),
+        GestureDetector(
+            onTap: () {
+              NavController navController = Get.find();
+              navController.tabIndex.value = 0;
+              navController.pageController.jumpToPage(0);
+            },
+            child: AppImage.asset(
+                '${BusinessConstants.imgPathPrefix}/chat/empty_message.png',
+                width: 200.w,
+                height: 160.w)),
         SizedBox(height: 16.w),
-        Text('引导文案',
+        Text('Add Friends',
             style: TextStyle(
                 fontSize: 12.sp, color: CommonUtil.hexColor(0x838AA0)))
       ],

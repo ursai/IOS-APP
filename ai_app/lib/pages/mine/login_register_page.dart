@@ -1,6 +1,9 @@
 import 'package:app/contants/business_constants.dart';
 import 'package:app/contants/router_name.dart';
+import 'package:app/controller/chat_controller.dart';
+import 'package:app/controller/discovery_controller.dart';
 import 'package:app/controller/login_controller.dart';
+import 'package:app/controller/mine_controller.dart';
 import 'package:app/models/login_request_model.dart';
 import 'package:app/utils/common_util.dart';
 import 'package:app/utils/store_util.dart';
@@ -84,7 +87,10 @@ class LoginRegisterPage extends GetView<LoginController> {
                     controller.signUp(
                         _usernameTextController.text, _pwdTextController.text,
                         successCallback: () {
-                      Get.toNamed(RouterName.usernameRouter);
+                      Get.put(DisCoveryController());
+                      Get.put(MineController());
+                      Get.put(ChatController());
+                      Get.offAllNamed('/');
                     });
                   } else {
                     // 登录
@@ -93,7 +99,10 @@ class LoginRegisterPage extends GetView<LoginController> {
                     model.email = _usernameTextController.text;
                     model.password = _pwdTextController.text;
                     controller.login(model, successCallback: () {
-                      Get.toNamed(RouterName.usernameRouter);
+                      Get.put(DisCoveryController());
+                      Get.put(MineController());
+                      Get.put(ChatController());
+                      Get.offAllNamed('/');
                     });
                   }
                 },

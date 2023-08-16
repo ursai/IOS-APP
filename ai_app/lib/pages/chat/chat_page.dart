@@ -1,8 +1,10 @@
 import 'package:app/contants/business_constants.dart';
 import 'package:app/controller/chat_controller.dart';
+import 'package:app/controller/discovery_controller.dart';
+import 'package:app/controller/mine_controller.dart';
 import 'package:app/models/chat_model.dart';
-import 'package:app/models/chat_request_model.dart';
 import 'package:app/models/discovery_model.dart';
+import 'package:app/models/fast_chat_model.dart';
 import 'package:app/utils/common_util.dart';
 import 'package:app/utils/db_util.dart';
 import 'package:app/widgets/common/app_image.dart';
@@ -12,17 +14,46 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class ChatPage extends GetView<ChatController> {
-  ChatPage({super.key});
+class ChatPage extends StatefulWidget {
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
 
-  Records? record;
-
+class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
+  late Records? record;
+  late ChatController controller;
+  late MineController mineController;
+  late DisCoveryController disCoveryController;
   final TextEditingController _msgTextController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    Get.put(ChatController());
+    controller = Get.find();
+    mineController = Get.find();
+
     record = Get.arguments;
+    // 如果第一次聊天展示About me和greet消息
+    bool? firstChat =
+        flustars.SpUtil.getBool('${record?.characterId}', defValue: true);
+    if (firstChat == true) {
+      _createGreetMessage();
+      flustars.SpUtil.putBool('${record?.characterId}', false);
+    }
+    // 如果有topic带入，需弹出topic消息
+    disCoveryController = Get.find();
+    String? topic = disCoveryController.selectedTopicMap[record?.characterId];
+    if (topic != null) {
+      bool showTopic = disCoveryController.showTopicMap[topic] ?? false;
+      if (showTopic == false) {
+        _createTopicMessage();
+        disCoveryController.showTopicMap[topic] = true;
+      }
+    }
 
     Future.delayed(const Duration(milliseconds: 200), () {
       // 列表滚动到底部
@@ -30,7 +61,28 @@ class ChatPage extends GetView<ChatController> {
         _scrollController.position.maxScrollExtent,
       );
     });
+    // 获取自动推荐
 
+    int accountId = mineController.loginModel.value.accountId ?? -1;
+    FastChatModel model = FastChatModel();
+    model.accountId = accountId;
+    model.characterId = record?.characterId;
+    controller.recommendResponse(model);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: CommonUtil.getBgAppBar(record?.name ?? '', actions: [
@@ -39,6 +91,7 @@ class ChatPage extends GetView<ChatController> {
             child: GestureDetector(
                 onTap: () {
                   Get.back();
+                  controller.showQuicklyMsg.value = false;
                 },
                 child: Text(
                   '...',
@@ -75,8 +128,43 @@ class ChatPage extends GetView<ChatController> {
                         padding: EdgeInsets.fromLTRB(24.w, 10.w, 24.w, 24.w),
                         itemBuilder: (context, index) {
                           ChatModel chatModel = currentChatList[index];
+                          // about me消息cell
+                          if (chatModel.msgType == MsgType.msgTypeAbout.index) {
+                            return Container(
+                              padding: EdgeInsets.symmetric(horizontal: 40.w),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      child: Text(chatModel.msgContent,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 14.sp)))
+                                ],
+                              ),
+                            );
+                          } else if (chatModel.msgType ==
+                              MsgType.msgTypeTopic.index) {
+                            // topic提示消息cell
+                            return Container(
+                              width: 1.sw,
+                              decoration: BoxDecoration(
+                                  color: Colors.white.withAlpha(204),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(12.w))),
+                              margin: EdgeInsets.symmetric(horizontal: 50.w),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 25.w, vertical: 12.w),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      child: Text(chatModel.msgContent,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 14.sp)))
+                                ],
+                              ),
+                            );
+                          }
                           // 发送消息cell
-                          if (chatModel.isSend == 0) {
+                          else if (chatModel.isSend == 0) {
                             return _buildSendCell(chatModel);
                           } else {
                             // 接收消息cell
@@ -126,9 +214,7 @@ class ChatPage extends GetView<ChatController> {
                     ]),
                     controller.showQuicklyMsg.value
                         ? _buildQuicklyMsgWidget(context)
-                        : SizedBox(
-                            height: ScreenUtil().bottomBarHeight,
-                          )
+                        : const SizedBox.shrink()
                   ],
                 ),
               )),
@@ -137,29 +223,83 @@ class ChatPage extends GetView<ChatController> {
     );
   }
 
+  // 创建About me和greet消息
+  void _createGreetMessage() {
+    // 存储Aboutme消息
+    int accountId = mineController.loginModel.value.accountId ?? -1;
+    ChatModel aboutModel = ChatModel(
+        accountId,
+        record?.characterId ?? -1,
+        '',
+        record?.about ?? '',
+        DateTime.now().millisecondsSinceEpoch,
+        0,
+        record?.name ?? '',
+        MsgType.msgTypeAbout.index);
+    DbUtil.shared.chatMsgBox.add(aboutModel);
+    aboutModel.save();
+    // 存储Greet消息
+    ChatModel greetModel = ChatModel(
+        accountId,
+        record?.characterId ?? -1,
+        '',
+        record?.greeting ?? '',
+        DateTime.now().millisecondsSinceEpoch,
+        1,
+        record?.name ?? '',
+        MsgType.msgTypeNormal.index);
+    DbUtil.shared.chatMsgBox.add(greetModel);
+    greetModel.save();
+  }
+
+  // 创建topic消息
+  void _createTopicMessage() {
+    // 存储topic消息
+    int accountId = mineController.loginModel.value.accountId ?? -1;
+    String topic =
+        disCoveryController.selectedTopicMap[record?.characterId] ?? '';
+    ChatModel topicModel = ChatModel(
+        accountId,
+        record?.characterId ?? -1,
+        '',
+        topic,
+        DateTime.now().millisecondsSinceEpoch,
+        0,
+        record?.name ?? '',
+        MsgType.msgTypeTopic.index);
+    DbUtil.shared.chatMsgBox.add(topicModel);
+    topicModel.save();
+  }
+
   // 发送消息事件
   void _sendMsg(BuildContext context) {
     if (_msgTextController.text.isNotEmpty) {
-      int accountId =
-          flustars.SpUtil.getInt(BusinessConstants.accountIdKey) ?? -1;
-      ChatRequestModel model = ChatRequestModel();
+      int accountId = mineController.loginModel.value.accountId ?? -1;
+      String topic =
+          disCoveryController.selectedTopicMap[record?.characterId] ?? '';
+
+      FastChatModel model = FastChatModel();
       model.accountId = accountId;
       model.characterId = record?.characterId;
       model.message = _msgTextController.text;
-      controller.chat(model, successCallback: (data) {
-        _msgTextController.text = '';
-        FocusScope.of(context).unfocus();
-        // 存储发送的消息
-        ChatModel sendModel = ChatModel(
-            model.accountId!,
-            model.characterId!,
-            '',
-            model.message!,
-            DateTime.now().millisecondsSinceEpoch,
-            0,
-            record?.name ?? '');
-        DbUtil.shared.chatMsgBox.add(sendModel);
-        sendModel.save();
+      model.topic = topic;
+      // 存储发送的消息
+      ChatModel sendModel = ChatModel(
+          model.accountId!,
+          model.characterId!,
+          '',
+          model.message!,
+          DateTime.now().millisecondsSinceEpoch,
+          0,
+          record?.name ?? '',
+          MsgType.msgTypeNormal.index);
+      DbUtil.shared.chatMsgBox.add(sendModel);
+      sendModel.save();
+
+      _msgTextController.text = '';
+      FocusScope.of(context).unfocus();
+
+      controller.topicChat(model, successCallback: (data) {
         // 存储接收的消息
         ChatModel receiveModel = ChatModel(
             model.accountId!,
@@ -168,14 +308,20 @@ class ChatPage extends GetView<ChatController> {
             data.toString(),
             DateTime.now().millisecondsSinceEpoch,
             1,
-            record?.name ?? '');
+            record?.name ?? '',
+            MsgType.msgTypeNormal.index);
         DbUtil.shared.chatMsgBox.add(receiveModel);
         receiveModel.save();
         // 获取回复推荐消息
+        model.message = data.toString();
         controller.recommendResponse(model);
         // 列表滚动到底部
-        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 200), curve: Curves.ease);
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.ease);
+        });
       });
     }
   }
@@ -247,6 +393,7 @@ class ChatPage extends GetView<ChatController> {
                   onTap: () {
                     _msgTextController.text = msg;
                     _sendMsg(context);
+                    controller.showQuicklyMsg.value = false;
                   },
                   child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 12.w),

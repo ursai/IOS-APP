@@ -36,8 +36,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               image: AssetImage(
                   '${BusinessConstants.imgPathPrefix}/discovery/discover_bg.png'),
               fit: BoxFit.fill)),
-      padding: EdgeInsets.fromLTRB(24.w, 16.w + ScreenUtil().statusBarHeight,
-          24.w, 16.w + ScreenUtil().bottomBarHeight),
+      padding: EdgeInsets.fromLTRB(
+          24.w, 16.w + ScreenUtil().statusBarHeight, 24.w, 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -102,8 +102,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                 _buildTagWidget(record),
                 SizedBox(height: 8.w),
                 Text(
-                  // '${record.topic?[1]}',
-                  'Aston hi Ao God ala wochokera ku ahShandong Shandong kuchokera ku ah akadaliwosavuta ah Shandong kuchokera ku ahwotumizidwa kuchokera ku asidi...',
+                  record.topic!.isNotEmpty ? '${record.topic?[0]}' : '',
                   softWrap: true,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -125,7 +124,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
       String tag = record.tags![i];
       if (tag.isNotEmpty) {
         tagListWidget.add(Container(
-          width: 63.w,
+          padding: EdgeInsets.symmetric(horizontal: 2.w),
           height: 19.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(

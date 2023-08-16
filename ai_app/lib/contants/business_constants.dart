@@ -1,6 +1,6 @@
 class BusinessConstants {
   static const tokenKey = 'usrTokenKey';
-  static const accountIdKey = 'accountIdKey';
+  static const userInfoKey = 'userInfoKey';
   // 图片路径前缀
   static const imgPathPrefix = 'assets/images';
   // 接口加密私钥

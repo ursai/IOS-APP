@@ -27,7 +27,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.72566415848-i0ki2614hmtkpltk5cod4d9e3c63u5at</string>
+				<string>com.googleusercontent.apps.923007328153-pco8hp0af4mmfgqtp5sq7or37uk7nvd4</string>
 			</array>
 		</dict>
 	</array>
@@ -37,6 +37,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

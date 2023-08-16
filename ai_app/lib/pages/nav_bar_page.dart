@@ -9,6 +9,7 @@ import 'package:app/pages/discovery/discovery_page.dart';
 import 'package:app/pages/mine/mine_page.dart';
 import 'package:app/utils/app_route_observer.dart';
 import 'package:app/utils/store_util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flustars/flustars.dart' as flustars;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -59,18 +60,6 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
     _isLogin();
 
     return Scaffold(
-      // bottomNavigationBar: Obx(() => BottomNavigationBar(
-      //       backgroundColor: Colors.white,
-      //       items: bottomTabs,
-      //       type: BottomNavigationBarType.fixed,
-      //       currentIndex: _navController.tabIndex.value,
-      //       unselectedItemColor: Colors.black,
-      //       selectedItemColor: Colors.white,
-      //       onTap: (index) {
-      //         _navController.tabIndex.value = index;
-      //         _navController.pageController.jumpToPage(index);
-      //       },
-      //     )),
       bottomNavigationBar: BottomAppBar(
         height: 88.w + ScreenUtil().bottomBarHeight,
         child: Row(
@@ -92,6 +81,21 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
     await flustars.SpUtil.getInstance();
     if (StoreUtil.isLogin() == false) {
       Get.offAllNamed(RouterName.loginRouter);
+    } else {
+      // 申请权限
+      NotificationSettings settings = await FirebaseMessaging.instance
+          .requestPermission(announcement: true, carPlay: true);
+      // 上报推送token
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        _navController.updatePushToken(fcmToken);
+      }
+      FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
+        _navController.updatePushToken(fcmToken);
+      }).onError((err) {
+        err.printError();
+      });
+      debugPrint(fcmToken);
     }
   }
 

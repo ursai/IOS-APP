@@ -26,7 +26,7 @@ class LoginModel {
       this.token,
       this.userName});
 
-  LoginModel.fromJson(Map<String, dynamic> json) {
+  LoginModel.fromJson(Map<dynamic, dynamic> json) {
     if (json["accountId"] is int) {
       accountId = json["accountId"];
     }
@@ -62,7 +62,7 @@ class LoginModel {
     }
   }
 
-  Map<String, dynamic> toJson() {
+  Map<dynamic, dynamic> toJson() {
     final Map<String, dynamic> _data = <String, dynamic>{};
     _data["accountId"] = accountId;
     _data["accountTypeEnum"] = accountTypeEnum;

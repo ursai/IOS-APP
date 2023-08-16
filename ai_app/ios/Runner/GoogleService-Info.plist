@@ -3,23 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>72566415848-i0ki2614hmtkpltk5cod4d9e3c63u5at.apps.googleusercontent.com</string>
+	<string>923007328153-pco8hp0af4mmfgqtp5sq7or37uk7nvd4.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.72566415848-i0ki2614hmtkpltk5cod4d9e3c63u5at</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>72566415848-qboagvb2gubtvge0hu30lv0ds25sac9k.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.923007328153-pco8hp0af4mmfgqtp5sq7or37uk7nvd4</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBsv-IQQ059ITqVlvwxpDC91f7E5ffQBA0</string>
+	<string>AIzaSyBiAmjE0cTuA5ymjDtNbOmO4EvUJTSmfQE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>72566415848</string>
+	<string>923007328153</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.urs.ai.app</string>
 	<key>PROJECT_ID</key>
-	<string>aiapp-9f9d4</string>
+	<string>twinkle-dd56f</string>
 	<key>STORAGE_BUCKET</key>
-	<string>aiapp-9f9d4.appspot.com</string>
+	<string>twinkle-dd56f.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:72566415848:ios:3ef1490c15de05139bc45d</string>
+	<string>1:923007328153:ios:03af413d6c7b7c5de17d08</string>
+	<key>DATABASE_URL</key>
+	<string>https://twinkle-dd56f-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

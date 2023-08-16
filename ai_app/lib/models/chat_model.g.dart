@@ -24,13 +24,14 @@ class ChatModelAdapter extends TypeAdapter<ChatModel> {
       fields[3] as int,
       fields[5] as int,
       fields[6] as String,
+      fields[7] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.accountId)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class ChatModelAdapter extends TypeAdapter<ChatModel> {
       ..writeByte(5)
       ..write(obj.isSend)
       ..writeByte(6)
-      ..write(obj.characterName);
+      ..write(obj.characterName)
+      ..writeByte(7)
+      ..write(obj.msgType);
   }
 
   @override

@@ -8,6 +8,10 @@ import 'package:get/get.dart';
 class DisCoveryController extends GetxController {
   // discovery列表
   var discoverList = <Records>[].obs;
+  // 聊天选中的topic
+  Map<int, String> selectedTopicMap = <int, String>{};
+  // 是否显示过topic消息
+  Map<String, bool> showTopicMap = <String, bool>{};
 
   @override
   void onInit() {

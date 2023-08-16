@@ -1,7 +1,7 @@
 import 'package:app/contants/api_path.dart';
 import 'package:app/models/chat_request_model.dart';
+import 'package:app/models/fast_chat_model.dart';
 import 'package:app/network/api_client.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ChatController extends GetxController {
@@ -15,7 +15,17 @@ class ChatController extends GetxController {
     ApiClient().post(ApiPath.chatApi,
         isShowLoading: false,
         data: chatRequestModel.toJson(), successCallback: (data) {
-      debugPrint(data);
+      if (successCallback != null) {
+        successCallback(data);
+      }
+    });
+  }
+
+  // topic聊天接口
+  void topicChat(FastChatModel fastChatModel, {Function? successCallback}) {
+    ApiClient().post(ApiPath.topicChatApi,
+        isShowLoading: false,
+        data: fastChatModel.toJson(), successCallback: (data) {
       if (successCallback != null) {
         successCallback(data);
       }
@@ -23,11 +33,11 @@ class ChatController extends GetxController {
   }
 
   // 聊天推荐回复接口
-  void recommendResponse(ChatRequestModel chatRequestModel,
+  void recommendResponse(FastChatModel fastChatModel,
       {Function? successCallback}) {
     ApiClient().post(ApiPath.recommendResponseApi,
         isShowLoading: false,
-        data: chatRequestModel.toJson(), successCallback: (data) {
+        data: fastChatModel.toJson(), successCallback: (data) {
       quciklyMsgList.value = data['responses'];
       if (successCallback != null) {
         successCallback();
