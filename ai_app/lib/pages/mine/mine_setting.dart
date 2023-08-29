@@ -5,6 +5,7 @@ import 'package:app/network/network_config.dart';
 import 'package:app/utils/common_util.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -21,28 +22,49 @@ class MineSetting extends GetView<MineController> {
           child: ListView.separated(
               padding: EdgeInsets.fromLTRB(24.w, 126.w, 24.w, 0),
               itemBuilder: (context, index) {
-                return Row(
-                  children: [
-                    Expanded(
-                        child: GestureDetector(
-                            onTap: () async {
-                              await SpUtil.remove(BusinessConstants.tokenKey);
-                              NetworkConfig.headers['authorization'] = '';
-                              Get.offAllNamed(RouterName.loginRouter);
-                            },
-                            child: Text('Log out',
-                                style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600)))),
-                    const Icon(Icons.arrow_forward_ios_outlined)
-                  ],
-                );
+                return SizedBox(
+                    height: 60.w,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () async {
+                                  if (index == 0) {
+                                    controller.logout(
+                                        successCallback: () async {
+                                      await SpUtil.remove(
+                                          BusinessConstants.tokenKey);
+                                      NetworkConfig.headers['authorization'] =
+                                          '';
+                                      Get.offAllNamed(RouterName.loginRouter);
+                                    });
+                                  } else if (index == 1) {
+                                    controller.delAccount(
+                                        successCallback: () async {
+                                      EasyLoading.showToast('删除成功');
+                                      await SpUtil.remove(
+                                          BusinessConstants.tokenKey);
+                                      NetworkConfig.headers['authorization'] =
+                                          '';
+                                      Get.offAllNamed(RouterName.loginRouter);
+                                    });
+                                  }
+                                },
+                                child: Text(
+                                    index == 0 ? 'Log out' : 'Delete Account',
+                                    style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600)))),
+                        const Icon(Icons.arrow_forward_ios_outlined)
+                      ],
+                    ));
               },
               separatorBuilder: (context, index) {
                 return Divider(
                     thickness: 1.w, color: Colors.black.withAlpha(25));
               },
-              itemCount: 1)),
+              itemCount: 2)),
     );
   }
 }

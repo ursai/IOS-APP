@@ -1,6 +1,7 @@
 class NetworkConfig {
-  static const String baseUrl = 'http://35.89.119.204:7010/';
-  static const connectTimeOut = Duration(seconds: 10);
+  // static const String baseUrl = 'http://35.89.119.204:7010/';
+  static const String baseUrl = 'https://ursai.xyz/pals/';
+  static const connectTimeOut = Duration(seconds: 30);
   static const receiveTimeOut = Duration(seconds: 30);
   static const sendTimeOut = Duration(seconds: 30);
   static Map<String, dynamic> headers = {};

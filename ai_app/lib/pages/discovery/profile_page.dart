@@ -52,8 +52,7 @@ class ProfilePage extends GetView<DisCoveryController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                      height: 400.w,
+                  Expanded(
                       child: MediaQuery.removePadding(
                           context: context,
                           removeTop: true,

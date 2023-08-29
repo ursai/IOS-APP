@@ -1,16 +1,20 @@
 import 'package:app/contants/business_constants.dart';
 import 'package:app/controller/mine_controller.dart';
+import 'package:app/models/update_user_info_model.dart';
 import 'package:app/utils/common_util.dart';
 import 'package:app/widgets/common/common_btn.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:group_button/group_button.dart';
 
 class MineProfilePage extends GetView<MineController> {
-  const MineProfilePage({super.key});
+  MineProfilePage({super.key});
+
+  final TextEditingController _nameEditController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +24,7 @@ class MineProfilePage extends GetView<MineController> {
     } else if (controller.loginModel.value.accountTypeEnum == 'APPLE') {
       account = controller.loginModel.value.appleId;
     }
+    _nameEditController.text = controller.loginModel.value.userName ?? '';
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -99,8 +104,10 @@ class MineProfilePage extends GetView<MineController> {
                                     color: CommonUtil.hexColor(0xA7AEB7)),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(12.w))),
-                            child: Text(
-                              controller.loginModel.value.userName ?? '',
+                            child: TextField(
+                              controller: _nameEditController,
+                              decoration: const InputDecoration(
+                                  border: InputBorder.none),
                             ),
                           ),
                           SizedBox(height: 24.w),
@@ -112,8 +119,11 @@ class MineProfilePage extends GetView<MineController> {
                           ),
                           SizedBox(height: 8.w),
                           GroupButton(
+                            controller: controller.buttonController,
                             buttons: const ['He', 'She', 'They'],
-                            onSelected: (value, index, isSelected) {},
+                            onSelected: (value, index, isSelected) {
+                              controller.sex.value = value.toUpperCase();
+                            },
                             options: GroupButtonOptions(
                                 groupingType: GroupingType.row,
                                 mainGroupAlignment:
@@ -172,7 +182,26 @@ class MineProfilePage extends GetView<MineController> {
                               )),
                         ]))),
                     CommonBtn(
-                      onPressed: () {},
+                      onPressed: () {
+                        if (_nameEditController.text.isEmpty ||
+                            controller.sex.value.isEmpty) {
+                          EasyLoading.showToast('请输入用户名或选择性别');
+                          return;
+                        }
+                        UpdateUserInfoModel userInfoModel =
+                            UpdateUserInfoModel();
+                        userInfoModel.accountId =
+                            controller.loginModel.value.accountId;
+                        userInfoModel.birth = controller.birthDate.value;
+                        userInfoModel.userName = _nameEditController.text;
+                        userInfoModel.pronounsTypeEnum = controller.sex.value;
+
+                        controller.updateUserInfo(userInfoModel,
+                            succussCallback: () {
+                          EasyLoading.showToast('更新成功');
+                          Get.back();
+                        });
+                      },
                       backgroundColor: CommonUtil.hexColor(0xFF0C57),
                       text: 'Submit',
                     ),

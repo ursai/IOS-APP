@@ -2,10 +2,12 @@ import 'package:app/contants/business_constants.dart';
 import 'package:app/contants/router_name.dart';
 import 'package:app/controller/mine_controller.dart';
 import 'package:app/utils/common_util.dart';
-import 'package:flustars/flustars.dart';
+import 'package:app/widgets/common/app_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class MinePage extends GetView<MineController> {
   MinePage({super.key});
@@ -43,21 +45,81 @@ class MinePage extends GetView<MineController> {
                     ],
                   ),
                   SizedBox(height: 24.w),
-                  Stack(
-                    children: [
-                      ClipRRect(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(100.w)),
-                          child: Image.asset(
-                              '${BusinessConstants.imgPathPrefix}/chat/avtar1.png',
-                              width: 130.w,
-                              height: 130.w))
-                    ],
+                  SizedBox(
+                    width: 129.w,
+                    height: 129.w,
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(100.w)),
+                            child: Obx(() => AppImage.netWork(
+                                controller.headerUrl.value,
+                                width: 130.w,
+                                height: 130.w))),
+                        Align(
+                            alignment: Alignment.bottomRight,
+                            child: GestureDetector(
+                                onTap: () {
+                                  final ImagePicker picker = ImagePicker();
+                                  showCupertinoModalPopup<void>(
+                                      context: context,
+                                      builder: ((context) =>
+                                          CupertinoActionSheet(
+                                            actions: [
+                                              CupertinoActionSheetAction(
+                                                  onPressed: () async {
+                                                    final XFile? image =
+                                                        await picker.pickImage(
+                                                            source: ImageSource
+                                                                .gallery);
+                                                    if (image != null) {
+                                                      Get.back();
+                                                      controller
+                                                          .uploadHeaderPic(
+                                                              image);
+                                                    }
+                                                  },
+                                                  child: const Text('Gallery')),
+                                              CupertinoActionSheetAction(
+                                                  onPressed: () async {
+                                                    final XFile? image =
+                                                        await picker.pickImage(
+                                                            source: ImageSource
+                                                                .camera);
+                                                    if (image != null) {
+                                                      Get.back();
+                                                      controller
+                                                          .uploadHeaderPic(
+                                                              image);
+                                                    }
+                                                  },
+                                                  child: const Text('Camera')),
+                                              CupertinoActionSheetAction(
+                                                  onPressed: () {
+                                                    Get.back();
+                                                  },
+                                                  child: const Text('Cancel')),
+                                            ],
+                                          )));
+                                },
+                                child: Container(
+                                  width: 50.w,
+                                  height: 50.w,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(12.w))),
+                                  child: const Icon(Icons.camera_alt_rounded),
+                                )))
+                      ],
+                    ),
                   ),
                   SizedBox(height: 10.w),
-                  Text(controller.loginModel.value.userName ?? '',
+                  Obx(() => Text(controller.loginModel.value.userName ?? '',
                       style: TextStyle(
-                          fontSize: 20.sp, fontWeight: FontWeight.w600)),
+                          fontSize: 20.sp, fontWeight: FontWeight.w600))),
                   Text('UID: ${controller.loginModel.value.accountId ?? -1}',
                       style: TextStyle(
                           fontSize: 14.sp, fontWeight: FontWeight.w400))
@@ -65,7 +127,8 @@ class MinePage extends GetView<MineController> {
         Align(
             alignment: Alignment.bottomLeft,
             child: Container(
-              height: 400.w,
+              height: 1.sh,
+              margin: EdgeInsets.only(top: 349.w),
               padding: EdgeInsets.fromLTRB(24.w, 16.w, 24.w, 0),
               decoration: BoxDecoration(
                   color: CommonUtil.hexColor(0xF9F9FA),

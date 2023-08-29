@@ -29,7 +29,7 @@ class GoogleAuthRepository implements AuthRepositoryImpl {
     UserCredential userCredential =
         await _firebaseAuth.signInWithCredential(credential);
 
-    return userCredential.user?.email;
+    return userCredential.user?.uid;
   }
 
   @override
@@ -53,6 +53,6 @@ class AppleAuthRepository {
     final User? user =
         (await FirebaseAuth.instance.signInWithProvider(appleProvider)).user;
 
-    return user?.email;
+    return user?.uid;
   }
 }

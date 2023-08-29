@@ -87,10 +87,10 @@ class LoginRegisterPage extends GetView<LoginController> {
                     controller.signUp(
                         _usernameTextController.text, _pwdTextController.text,
                         successCallback: () {
+                      Get.offAllNamed(RouterName.usernameRouter);
                       Get.put(DisCoveryController());
                       Get.put(MineController());
                       Get.put(ChatController());
-                      Get.offAllNamed('/');
                     });
                   } else {
                     // 登录
@@ -99,10 +99,10 @@ class LoginRegisterPage extends GetView<LoginController> {
                     model.email = _usernameTextController.text;
                     model.password = _pwdTextController.text;
                     controller.login(model, successCallback: () {
+                      Get.offAllNamed('/');
                       Get.put(DisCoveryController());
                       Get.put(MineController());
                       Get.put(ChatController());
-                      Get.offAllNamed('/');
                     });
                   }
                 },

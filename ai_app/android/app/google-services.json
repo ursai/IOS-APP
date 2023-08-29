@@ -1,45 +1,46 @@
 {
   "project_info": {
-    "project_number": "72566415848",
-    "project_id": "aiapp-9f9d4",
-    "storage_bucket": "aiapp-9f9d4.appspot.com"
+    "project_number": "923007328153",
+    "firebase_url": "https://twinkle-dd56f-default-rtdb.firebaseio.com",
+    "project_id": "twinkle-dd56f",
+    "storage_bucket": "twinkle-dd56f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:72566415848:android:5fc44d2169861f119bc45d",
+        "mobilesdk_app_id": "1:923007328153:android:ca3f04f5f75bc675e17d08",
         "android_client_info": {
           "package_name": "com.urs.ai.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "72566415848-lp4sb346f5ovl6v137fni3r988v2hgtn.apps.googleusercontent.com",
+          "client_id": "923007328153-qjqmdg89r08609aroe6ifaucntvjkso6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.urs.ai.app",
-            "certificate_hash": "2a37fd74a367188bab42413b4ae31f5da2007824"
+            "certificate_hash": "1b2775c855a80fe2a7d064dfd3f2518f2a9dfb75"
           }
         },
         {
-          "client_id": "72566415848-dsj9nme69djqe0hs36nnq4u1cfsb9vav.apps.googleusercontent.com",
+          "client_id": "923007328153-3nrguvi4v6ga2gbhnlkqtr6nse3ochg0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCy9F-DpZWm6B2RJAPJdAczLtcftwrsUYE"
+          "current_key": "AIzaSyC1rZM1pO83bVSHrliwwUhbg987TH_6vIo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "72566415848-dsj9nme69djqe0hs36nnq4u1cfsb9vav.apps.googleusercontent.com",
+              "client_id": "923007328153-3nrguvi4v6ga2gbhnlkqtr6nse3ochg0.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "72566415848-i0ki2614hmtkpltk5cod4d9e3c63u5at.apps.googleusercontent.com",
+              "client_id": "923007328153-pco8hp0af4mmfgqtp5sq7or37uk7nvd4.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.urs.ai.app"

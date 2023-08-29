@@ -8,6 +8,7 @@ import 'package:app/network/network_config.dart';
 import 'package:app/utils/app_route_observer.dart';
 import 'package:app/utils/db_util.dart';
 import 'package:app/utils/keyboard_util.dart';
+import 'package:countly_flutter/countly_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +81,20 @@ class AIApp extends StatelessWidget {
 
   Future<void> _initSpUtil() async {
     FlutterNativeSplash.remove();
+    // 初始化Countly
+    Countly.isInitialized().then((isInitialized) {
+      if (!isInitialized) {
+        CountlyConfig config = CountlyConfig('http://13.250.98.107/',
+            '82764596f39b40bc91f7d8abef4b3b3c0baa17c0');
+        config.setLoggingEnabled(true);
+        config.enableCrashReporting();
+        Countly.initWithConfig(config).then((value) {
+          Countly.start();
+        });
+      } else {
+        debugPrint("Countly: Already initialized.");
+      }
+    });
 
     await SpUtil.getInstance();
     // 初始化数据库

@@ -5,9 +5,10 @@ import 'package:app/models/login_request_model.dart';
 import 'package:app/network/api_client.dart';
 import 'package:app/network/network_config.dart';
 import 'package:app/utils/auth_repository.dart';
+import 'package:countly_flutter/countly_flutter.dart';
 import 'package:flustars/flustars.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:app/models/user_info_model.dart';
 
 enum LoginType { email, google, apple }
 
@@ -20,17 +21,19 @@ class LoginController extends GetxController {
 
   // Google授权
   void googleAuth(Function callback) async {
-    String? email = await _googleAuthRepository.signInWithGoogle();
-    if (email != null) {
-      callback(email);
+    String? googleUid = await _googleAuthRepository.signInWithGoogle();
+    Countly.log('Google id is $googleUid', logLevel: LogLevel.INFO);
+    if (googleUid != null) {
+      callback(googleUid);
     }
   }
 
   // Apple授权
   void uriAppleAuth(Function callback) async {
-    String? email = await _appleAuthRepository.signInWithApple();
-    if (email != null) {
-      callback(email);
+    String? appleUid = await _appleAuthRepository.signInWithApple();
+    Countly.log('Apple id is $appleUid', logLevel: LogLevel.INFO);
+    if (appleUid != null) {
+      callback(appleUid);
     }
   }
 
@@ -40,7 +43,8 @@ class LoginController extends GetxController {
         successCallback: (data) async {
       loginModel = LoginModel.fromJson(data);
       // 保存登录数据
-      await SpUtil.putObject(BusinessConstants.userInfoKey, loginModel!);
+      await SpUtil.putObject(
+          BusinessConstants.userInfoKey, loginModel!.toJson());
       // 保存token
       await SpUtil.putString(
           BusinessConstants.tokenKey, loginModel?.token ?? '');
@@ -63,16 +67,6 @@ class LoginController extends GetxController {
       await SpUtil.putString(
           BusinessConstants.tokenKey, loginModel?.token ?? '');
       NetworkConfig.headers['authorization'] = loginModel?.token;
-      if (successCallback != null) {
-        successCallback();
-      }
-    });
-  }
-
-  // 更新用户信息
-  void updateUserInfo(UserInfoModel userInfo, {Function? successCallback}) {
-    ApiClient().post(ApiPath.updateUserInfoApi, data: userInfo.toJson(),
-        successCallback: (data) {
       if (successCallback != null) {
         successCallback();
       }

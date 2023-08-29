@@ -2,7 +2,6 @@ import 'package:app/models/base_model.dart';
 import 'package:app/network/network_config.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -136,6 +135,26 @@ class ApiClient {
           EasyLoading.showToast(baseModel.message ?? '');
         }
       }
+    }
+  }
+
+  void upload(String path,
+      {bool isShowLoading = true,
+      Object? data,
+      Function? errorCallback,
+      Function? successCallback}) async {
+    Response response;
+    try {
+      if (isShowLoading) EasyLoading.show();
+      Options options = Options(
+        headers: NetworkConfig.headers,
+      );
+      response = await _dio.post(path, data: data, options: options);
+      if (isShowLoading) EasyLoading.dismiss();
+      _handleResponse(response,
+          successCallback: successCallback, errorCallback: errorCallback);
+    } on DioException catch (e) {
+      _handleError(e, errorCallback: errorCallback);
     }
   }
 

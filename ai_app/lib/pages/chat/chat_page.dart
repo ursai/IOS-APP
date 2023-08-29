@@ -15,6 +15,8 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
+
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -24,7 +26,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   late ChatController controller;
   late MineController mineController;
   late DisCoveryController disCoveryController;
-  final TextEditingController _msgTextController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -57,9 +58,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
     Future.delayed(const Duration(milliseconds: 200), () {
       // 列表滚动到底部
-      _scrollController.jumpTo(
-        _scrollController.position.maxScrollExtent,
-      );
+      _scrollController.jumpTo(0);
     });
     // 获取自动推荐
 
@@ -77,13 +76,10 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeMetrics() {
-    super.didChangeMetrics();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       appBar: CommonUtil.getBgAppBar(record?.name ?? '', actions: [
         Padding(
@@ -98,128 +94,142 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   style: TextStyle(color: Colors.black, fontSize: 18.sp),
                 )))
       ]),
-      body: Column(
-        children: [
-          Expanded(
-              child: Container(
-            width: 1.sw,
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(
-                        '${BusinessConstants.imgPathPrefix}/chat/chat_bg.png'),
-                    fit: BoxFit.fill)),
-            child: ValueListenableBuilder(
-                valueListenable:
-                    Hive.box(BusinessConstants.chatMsgBox).listenable(),
-                builder: (context, box, widget) {
-                  // 筛选出属于当前聊天characterId的消息列表
-                  List<ChatModel> currentChatList = [];
+      body: SafeArea(
+          top: false,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                  child: Image.asset(
+                      '${BusinessConstants.imgPathPrefix}/chat/chat_bg.png',
+                      fit: BoxFit.fill)),
+              Column(
+                children: [
+                  Expanded(
+                    child: ValueListenableBuilder(
+                        valueListenable:
+                            Hive.box(BusinessConstants.chatMsgBox).listenable(),
+                        builder: (context, box, widget) {
+                          // 筛选出属于当前聊天characterId的消息列表
+                          List<ChatModel> currentChatList = [];
 
-                  for (ChatModel chatModel in box.values) {
-                    if (chatModel.characterId == record?.characterId) {
-                      currentChatList.add(chatModel);
-                    }
-                  }
+                          for (ChatModel chatModel in box.values) {
+                            if (chatModel.characterId == record?.characterId) {
+                              currentChatList.add(chatModel);
+                            }
+                          }
+                          currentChatList = currentChatList.reversed.toList();
 
-                  return Container(
-                      margin: EdgeInsets.only(top: 93.w),
-                      child: ListView.separated(
-                        controller: _scrollController,
-                        padding: EdgeInsets.fromLTRB(24.w, 10.w, 24.w, 24.w),
-                        itemBuilder: (context, index) {
-                          ChatModel chatModel = currentChatList[index];
-                          // about me消息cell
-                          if (chatModel.msgType == MsgType.msgTypeAbout.index) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(horizontal: 40.w),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      child: Text(chatModel.msgContent,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 14.sp)))
-                                ],
+                          return Container(
+                              margin: EdgeInsets.only(top: 100.w),
+                              child: ListView.separated(
+                                reverse: true,
+                                controller: _scrollController,
+                                padding:
+                                    EdgeInsets.fromLTRB(24.w, 10.w, 24.w, 24.w),
+                                itemBuilder: (context, index) {
+                                  ChatModel chatModel = currentChatList[index];
+                                  // about me消息cell
+                                  if (chatModel.msgType ==
+                                      MsgType.msgTypeAbout.index) {
+                                    return Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 40.w),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                              child: Text(chatModel.msgContent,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontSize: 14.sp)))
+                                        ],
+                                      ),
+                                    );
+                                  } else if (chatModel.msgType ==
+                                      MsgType.msgTypeTopic.index) {
+                                    // topic提示消息cell
+                                    return Container(
+                                      width: 1.sw,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white.withAlpha(204),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(12.w))),
+                                      margin: EdgeInsets.symmetric(
+                                          horizontal: 50.w),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 25.w, vertical: 12.w),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                              child: Text(chatModel.msgContent,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontSize: 14.sp)))
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  // 发送消息cell
+                                  else if (chatModel.isSend == 0) {
+                                    return _buildSendCell(chatModel);
+                                  } else {
+                                    // 接收消息cell
+                                    return _buildReceiveWidget(chatModel);
+                                  }
+                                },
+                                separatorBuilder: (context, index) {
+                                  return SizedBox(height: 24.w);
+                                },
+                                shrinkWrap: true,
+                                itemCount: currentChatList.length,
+                              ));
+                        }),
+                  ),
+                  Obx(() => Container(
+                        alignment: Alignment.center,
+                        color: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        child: Column(
+                          children: [
+                            Row(children: [
+                              GestureDetector(
+                                onTap: () {
+                                  controller.showQuicklyMsg.value =
+                                      !controller.showQuicklyMsg.value;
+                                },
+                                child: AppImage.asset(
+                                    '${BusinessConstants.imgPathPrefix}/chat/quickly_msg.png',
+                                    width: 24.w,
+                                    height: 24.w),
                               ),
-                            );
-                          } else if (chatModel.msgType ==
-                              MsgType.msgTypeTopic.index) {
-                            // topic提示消息cell
-                            return Container(
-                              width: 1.sw,
-                              decoration: BoxDecoration(
-                                  color: Colors.white.withAlpha(204),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(12.w))),
-                              margin: EdgeInsets.symmetric(horizontal: 50.w),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 25.w, vertical: 12.w),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      child: Text(chatModel.msgContent,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 14.sp)))
-                                ],
-                              ),
-                            );
-                          }
-                          // 发送消息cell
-                          else if (chatModel.isSend == 0) {
-                            return _buildSendCell(chatModel);
-                          } else {
-                            // 接收消息cell
-                            return _buildReceiveWidget(chatModel);
-                          }
-                        },
-                        separatorBuilder: (context, index) {
-                          return SizedBox(height: 24.w);
-                        },
-                        shrinkWrap: true,
-                        itemCount: currentChatList.length,
-                      ));
-                }),
-          )),
-          Obx(() => Container(
-                alignment: Alignment.center,
-                color: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  children: [
-                    Row(children: [
-                      GestureDetector(
-                        onTap: () {
-                          controller.showQuicklyMsg.value =
-                              !controller.showQuicklyMsg.value;
-                        },
-                        child: AppImage.asset(
-                            '${BusinessConstants.imgPathPrefix}/chat/quickly_msg.png',
-                            width: 24.w,
-                            height: 24.w),
-                      ),
-                      SizedBox(width: 27.w),
-                      Expanded(
-                          child: TextField(
-                        controller: _msgTextController,
-                        decoration: const InputDecoration(
-                            border: InputBorder.none, hintText: 'Type Messgae'),
+                              SizedBox(width: 27.w),
+                              Expanded(
+                                  child: TextField(
+                                controller: controller.msgTextController,
+                                decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Type Messgae'),
+                              )),
+                              GestureDetector(
+                                  onTap: () {
+                                    _sendMsg(context);
+                                  },
+                                  child: Obx(() => AppImage.asset(
+                                      controller.sendMsgFlag.value
+                                          ? '${BusinessConstants.imgPathPrefix}/chat/send_msg.png'
+                                          : '${BusinessConstants.imgPathPrefix}/chat/send_msg_disabled.png',
+                                      width: 24.w,
+                                      height: 24.w)))
+                            ]),
+                            controller.showQuicklyMsg.value
+                                ? _buildQuicklyMsgWidget(context)
+                                : const SizedBox.shrink(),
+                          ],
+                        ),
                       )),
-                      GestureDetector(
-                          onTap: () {
-                            _sendMsg(context);
-                          },
-                          child: AppImage.asset(
-                              '${BusinessConstants.imgPathPrefix}/chat/send_msg.png',
-                              width: 24.w,
-                              height: 24.w))
-                    ]),
-                    controller.showQuicklyMsg.value
-                        ? _buildQuicklyMsgWidget(context)
-                        : const SizedBox.shrink()
-                  ],
-                ),
-              )),
-        ],
-      ),
+                ],
+              )
+            ],
+          )),
     );
   }
 
@@ -273,7 +283,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   // 发送消息事件
   void _sendMsg(BuildContext context) {
-    if (_msgTextController.text.isNotEmpty) {
+    if (controller.msgTextController.text.isNotEmpty) {
       int accountId = mineController.loginModel.value.accountId ?? -1;
       String topic =
           disCoveryController.selectedTopicMap[record?.characterId] ?? '';
@@ -281,7 +291,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       FastChatModel model = FastChatModel();
       model.accountId = accountId;
       model.characterId = record?.characterId;
-      model.message = _msgTextController.text;
+      model.message = controller.msgTextController.text;
       model.topic = topic;
       // 存储发送的消息
       ChatModel sendModel = ChatModel(
@@ -296,7 +306,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       DbUtil.shared.chatMsgBox.add(sendModel);
       sendModel.save();
 
-      _msgTextController.text = '';
+      controller.msgTextController.text = '';
       FocusScope.of(context).unfocus();
 
       controller.topicChat(model, successCallback: (data) {
@@ -317,10 +327,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         controller.recommendResponse(model);
         // 列表滚动到底部
         Future.delayed(const Duration(milliseconds: 100), () {
-          _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.ease);
+          _scrollController.jumpTo(0);
         });
       });
     }
@@ -391,7 +398,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
               String msg = controller.quciklyMsgList[index];
               return GestureDetector(
                   onTap: () {
-                    _msgTextController.text = msg;
+                    controller.msgTextController.text = msg;
                     _sendMsg(context);
                     controller.showQuicklyMsg.value = false;
                   },

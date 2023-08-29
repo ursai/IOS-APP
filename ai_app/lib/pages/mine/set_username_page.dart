@@ -1,9 +1,6 @@
 import 'package:app/contants/business_constants.dart';
-import 'package:app/controller/chat_controller.dart';
-import 'package:app/controller/discovery_controller.dart';
-import 'package:app/controller/login_controller.dart';
+import 'package:app/contants/router_name.dart';
 import 'package:app/controller/mine_controller.dart';
-import 'package:app/models/user_info_model.dart';
 import 'package:app/utils/common_util.dart';
 import 'package:app/widgets/common/common_btn.dart';
 import 'package:app/widgets/mine/login_input_widget.dart';
@@ -12,7 +9,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-class SetUserNamePage extends GetView<LoginController> {
+class SetUserNamePage extends GetView<MineController> {
   SetUserNamePage({super.key});
 
   final TextEditingController _usernameTextController = TextEditingController();
@@ -29,15 +26,19 @@ class SetUserNamePage extends GetView<LoginController> {
         padding: EdgeInsets.fromLTRB(24.w, 126.w, 24.w, 0),
         child: Column(
           children: [
-            LoginInputWidget(
-              editingController: _usernameTextController,
-              icon: Image.asset(
-                  '${BusinessConstants.imgPathPrefix}/mine/login_user.png',
-                  width: 24.w,
-                  height: 24.w),
-              hintText: 'Enter your name',
-            ),
-            SizedBox(height: 247.w),
+            Expanded(
+                child: Column(
+              children: [
+                LoginInputWidget(
+                  editingController: _usernameTextController,
+                  icon: Image.asset(
+                      '${BusinessConstants.imgPathPrefix}/mine/login_user.png',
+                      width: 24.w,
+                      height: 24.w),
+                  hintText: 'Enter your name',
+                )
+              ],
+            )),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -47,21 +48,15 @@ class SetUserNamePage extends GetView<LoginController> {
                         EasyLoading.showToast('user name cannot empty');
                         return;
                       }
-                      UserInfoModel model =
-                          UserInfoModel(userName: _usernameTextController.text);
-                      model.accountId = controller.loginModel?.accountId;
-                      controller.updateUserInfo(model, successCallback: () {
-                        Get.put(DisCoveryController());
-                        Get.put(MineController());
-                        Get.put(ChatController());
-                        Get.offAllNamed('/');
-                      });
+                      controller.userName = _usernameTextController.text;
+                      Get.toNamed(RouterName.mineSexRouter);
                     },
                     text: 'Continue',
                     size: Size(128.w, 58.w),
-                    backgroundColor: CommonUtil.hexColor(0xFF0C57))
+                    backgroundColor: CommonUtil.hexColor(0xFF0C57)),
               ],
-            )
+            ),
+            SizedBox(height: 82.w)
           ],
         ),
       )),

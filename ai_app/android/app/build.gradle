@@ -44,7 +44,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.urs.ai.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
@@ -54,12 +53,27 @@ android {
         versionName flutterVersionName
         multiDexEnabled true
     }
-
-    buildTypes {
+    signingConfigs {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            storeFile file("../../ursai.keystore")  // keystore相对路径
+            storePassword "123456"
+            keyAlias "ursai"
+            keyPassword "123456"
+        }
+        debug {
+            storeFile file("../../ursai.keystore")  // keystore相对路径
+            storePassword "123456"
+            keyAlias "ursai"
+            keyPassword "123456"
+        }
+    }
+    buildTypes {
+        debug {
             signingConfig signingConfigs.debug
+        }
+        release {
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -75,4 +89,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation 'com.google.firebase:firebase-auth-ktx:22.1.0'
 }

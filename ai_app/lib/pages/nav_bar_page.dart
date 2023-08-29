@@ -83,7 +83,7 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
       Get.offAllNamed(RouterName.loginRouter);
     } else {
       // 申请权限
-      NotificationSettings settings = await FirebaseMessaging.instance
+      await FirebaseMessaging.instance
           .requestPermission(announcement: true, carPlay: true);
       // 上报推送token
       final fcmToken = await FirebaseMessaging.instance.getToken();
@@ -95,7 +95,6 @@ class _NavBarPageState extends State<NavBarPage> with RouteAware {
       }).onError((err) {
         err.printError();
       });
-      debugPrint(fcmToken);
     }
   }
 
